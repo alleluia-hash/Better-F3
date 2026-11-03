@@ -1,0 +1,26 @@
+{
+  "schemaVersion": 1,
+  "id": "better-f3",
+  "version": "${version}",
+  "name": "Better-F3",
+  "description": "Choose exactly which F3 debug items you see, in a compact overlay.",
+  "authors": [
+    "alleluia-hash"
+  ],
+  "license": "MIT",
+  "environment": "client",
+  "entrypoints": {
+    "client": [
+      "com.alleluia.betterf3.BetterF3Client"
+    ]
+  },
+  "mixins": [
+    "better-f3.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=0.15.0",
+    "minecraft": "~1.20.1",
+    "java": ">=17",
+    "fabric-api": "*"
+  }
+}
