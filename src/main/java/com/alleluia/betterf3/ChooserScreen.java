@@ -1,8 +1,8 @@
 package com.alleluia.betterf3;
 
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.Text;
 import org.lwjgl.glfw.GLFW;
 
@@ -53,27 +53,27 @@ public final class ChooserScreen extends Screen {
     }
 
     @Override
-    public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
-        fill(matrices, 8, 8, width - 8, height - 8, 0xB0000000);
-        textRenderer.drawWithShadow(matrices,
-                "Better-F3  -  preset: " + F3Config.activePresetName(), LEFT, 16, 0xFFFFAA);
+    public void render(DrawContext context, int mouseX, int mouseY, float delta) {
+        context.fill(8, 8, width - 8, height - 8, 0xB0000000);
+        context.drawText(textRenderer,
+                "Better-F3  -  preset: " + F3Config.activePresetName(), LEFT, 16, 0xFFFFAA, true);
 
         if (keys.isEmpty()) {
-            textRenderer.drawWithShadow(matrices,
-                    "No F3 items found. Join a world first.", LEFT, TOP, 0xFFFFFF);
+            context.drawText(textRenderer,
+                    "No F3 items found. Join a world first.", LEFT, TOP, 0xFFFFFF, true);
         }
         for (int i = 0; i < keys.size(); i++) {
             String key = keys.get(i);
             String row = (F3Config.isActive(key) ? "[x] " : "[ ] ") + key + "   " + preview(key);
             int color = i == cursor ? 0xFFFF55 : 0xFFFFFF;
-            textRenderer.drawWithShadow(matrices, row, LEFT, TOP + i * ROW_HEIGHT, color);
+            context.drawText(textRenderer, row, LEFT, TOP + i * ROW_HEIGHT, color, true);
         }
 
-        textRenderer.drawWithShadow(matrices,
+        context.drawText(textRenderer,
                 "Up/Down move   Enter toggle   Left/Right preset   N new   Del delete",
-                LEFT, height - 26, 0xAAAAAA);
-        textRenderer.drawWithShadow(matrices,
-                "Esc keep overlay   F6 turn off", LEFT, height - 14, 0xAAAAAA);
+                LEFT, height - 26, 0xAAAAAA, true);
+        context.drawText(textRenderer,
+                "Esc keep overlay   F6 turn off", LEFT, height - 14, 0xAAAAAA, true);
     }
 
     private String preview(String key) {

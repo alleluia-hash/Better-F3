@@ -37,6 +37,6 @@ public class BetterF3Client implements ClientModInitializer {
             }
         });
 
-        HudRenderCallback.EVENT.register((matrices, tickDelta) -> F3Overlay.render(matrices));
+        HudRenderCallback.EVENT.register((context, tickDelta) -> F3Overlay.render(context));
     }
 }

@@ -1,8 +1,7 @@
 package com.alleluia.betterf3;
 
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.font.TextRenderer;
-import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.client.gui.DrawContext;
 
 import java.util.Set;
 
@@ -44,7 +43,7 @@ public final class F3Overlay {
         }
     }
 
-    public static void render(MatrixStack matrices) {
+    public static void render(DrawContext context) {
         if (mode != F3Mode.FILTERED) {
             return;
         }
@@ -52,14 +51,14 @@ public final class F3Overlay {
         if (client.options.hudHidden) {
             return;
         }
-        TextRenderer text = client.textRenderer;
-        text.drawWithShadow(matrices, "[" + F3Config.activePresetName() + "]", LEFT, TOP, PRESET_COLOR);
+        context.drawText(client.textRenderer, "[" + F3Config.activePresetName() + "]",
+                LEFT, TOP, PRESET_COLOR, true);
 
         Set<String> active = F3Config.activeKeys();
         int y = TOP + LINE_HEIGHT;
         for (F3Lines.Line line : F3Lines.snapshot(client)) {
             if (active.contains(line.key())) {
-                text.drawWithShadow(matrices, line.text(), LEFT, y, TEXT_COLOR);
+                context.drawText(client.textRenderer, line.text(), LEFT, y, TEXT_COLOR, true);
                 y += LINE_HEIGHT;
             }
         }

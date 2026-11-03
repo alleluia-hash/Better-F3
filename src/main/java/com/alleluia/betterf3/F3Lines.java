@@ -17,10 +17,10 @@ public final class F3Lines {
 
     public static List<Line> snapshot(MinecraftClient client) {
         List<Line> out = new ArrayList<>();
-        if (client == null || client.inGameHud == null) {
+        if (client == null) {
             return out;
         }
-        DebugHud hud = client.inGameHud.getDebugHud();
+        DebugHud hud = client.getDebugHud();
         if (!(hud instanceof BetterF3DebugAccess access)) {
             return out;
         }
