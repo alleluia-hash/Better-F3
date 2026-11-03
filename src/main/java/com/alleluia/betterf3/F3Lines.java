@@ -1,7 +1,6 @@
 package com.alleluia.betterf3;
 
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.hud.DebugHud;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,16 +11,20 @@ public final class F3Lines {
     public record Line(String key, String text) {
     }
 
+    /** The vanilla debug HUD, captured by {@code DebugHudMixin} when it is created. */
+    private static volatile BetterF3DebugAccess hud;
+
     private F3Lines() {
+    }
+
+    public static void register(BetterF3DebugAccess access) {
+        hud = access;
     }
 
     public static List<Line> snapshot(MinecraftClient client) {
         List<Line> out = new ArrayList<>();
-        if (client == null) {
-            return out;
-        }
-        DebugHud hud = client.getDebugHud();
-        if (!(hud instanceof BetterF3DebugAccess access)) {
+        BetterF3DebugAccess access = hud;
+        if (access == null) {
             return out;
         }
         addAll(out, access.betterF3Left());
