@@ -35,6 +35,13 @@ public class BetterF3Client implements ClientModInitializer {
             while (presetKey.wasPressed()) {
                 F3Config.nextPreset();
             }
+
+            // The chooser sets the mode to CHOOSER while it is open. Esc and F6 reset it, but any
+            // other way of closing the screen (inventory key, death, respawn, dimension change)
+            // would leave the mode stuck on CHOOSER with no screen, so resync it here.
+            if (F3Overlay.mode() == F3Mode.CHOOSER && client.currentScreen == null) {
+                F3Overlay.setMode(F3Mode.FILTERED);
+            }
         });
 
         HudRenderCallback.EVENT.register((context, tickDelta) -> F3Overlay.render(context));

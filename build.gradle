@@ -1,6 +1,5 @@
 plugins {
-    id 'fabric-loom' version '1.5-SNAPSHOT'
-    id 'maven-publish'
+    id 'fabric-loom' version '1.7.4'
 }
 
 version = project.mod_version
@@ -11,7 +10,11 @@ base {
 }
 
 repositories {
-    maven { url 'https://maven.fabricmc.net/' }
+    maven {
+        name = 'Fabric'
+        url = 'https://maven.fabricmc.net/'
+    }
+    mavenCentral()
 }
 
 dependencies {
@@ -29,6 +32,7 @@ processResources {
 }
 
 tasks.withType(JavaCompile).configureEach {
+    it.options.encoding = "UTF-8"
     it.options.release = 17
 }
 

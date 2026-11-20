@@ -20,10 +20,13 @@ public final class ChooserScreen extends Screen {
     private static final int TOP = 44;
     private static final int ROW_HEIGHT = 12;
     private static final int MAX_PREVIEW = 56;
+    /** Space kept free under the list for the two help lines. */
+    private static final int FOOTER = 34;
 
     private final List<String> keys = new ArrayList<>();
     private final Map<String, String> previews = new HashMap<>();
     private int cursor;
+    private int firstVisible;
 
     public ChooserScreen() {
         super(Text.literal("Better-F3"));
@@ -33,7 +36,7 @@ public final class ChooserScreen extends Screen {
     private void refreshKeys() {
         keys.clear();
         previews.clear();
-        for (F3Lines.Line line : F3Lines.snapshot(MinecraftClient.getInstance())) {
+        for (F3Lines.Line line : F3Lines.snapshot()) {
             if (!previews.containsKey(line.key())) {
                 previews.put(line.key(), line.text());
                 keys.add(line.key());
@@ -52,6 +55,33 @@ public final class ChooserScreen extends Screen {
         return false;
     }
 
+    /** How many rows fit above the help text at the current GUI scale. */
+    private int visibleRows() {
+        return Math.max(1, (height - FOOTER - TOP) / ROW_HEIGHT);
+    }
+
+    /** Keeps the cursor inside the visible window, so the list scrolls instead of overflowing. */
+    private void clampScroll() {
+        int rows = visibleRows();
+        if (cursor < 0) {
+            cursor = 0;
+        }
+        if (cursor > keys.size() - 1) {
+            cursor = Math.max(0, keys.size() - 1);
+        }
+        if (cursor < firstVisible) {
+            firstVisible = cursor;
+        } else if (cursor >= firstVisible + rows) {
+            firstVisible = cursor - rows + 1;
+        }
+        if (firstVisible > Math.max(0, keys.size() - rows)) {
+            firstVisible = Math.max(0, keys.size() - rows);
+        }
+        if (firstVisible < 0) {
+            firstVisible = 0;
+        }
+    }
+
     @Override
     public void render(DrawContext context, int mouseX, int mouseY, float delta) {
         context.fill(8, 8, width - 8, height - 8, 0xB0000000);
@@ -62,11 +92,19 @@ public final class ChooserScreen extends Screen {
             context.drawText(textRenderer,
                     "No F3 items found. Join a world first.", LEFT, TOP, 0xFFFFFF, true);
         }
-        for (int i = 0; i < keys.size(); i++) {
+
+        int rows = visibleRows();
+        int last = Math.min(keys.size(), firstVisible + rows);
+        for (int i = firstVisible; i < last; i++) {
             String key = keys.get(i);
             String row = (F3Config.isActive(key) ? "[x] " : "[ ] ") + key + "   " + preview(key);
             int color = i == cursor ? 0xFFFF55 : 0xFFFFFF;
-            context.drawText(textRenderer, row, LEFT, TOP + i * ROW_HEIGHT, color, true);
+            context.drawText(textRenderer, row, LEFT, TOP + (i - firstVisible) * ROW_HEIGHT, color, true);
+        }
+
+        if (keys.size() > rows) {
+            String more = (firstVisible + 1) + "-" + last + " of " + keys.size();
+            context.drawText(textRenderer, more, width - LEFT - textRenderer.getWidth(more), 16, 0xAAAAAA, true);
         }
 
         context.drawText(textRenderer,
@@ -82,7 +120,7 @@ public final class ChooserScreen extends Screen {
     }
 
     private void toggleCursor() {
-        if (!keys.isEmpty()) {
+        if (!keys.isEmpty() && cursor >= 0 && cursor < keys.size()) {
             F3Config.toggle(keys.get(cursor));
         }
     }
@@ -90,8 +128,14 @@ public final class ChooserScreen extends Screen {
     @Override
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
         switch (keyCode) {
-            case GLFW.GLFW_KEY_UP -> cursor = Math.max(0, cursor - 1);
-            case GLFW.GLFW_KEY_DOWN -> cursor = Math.min(Math.max(0, keys.size() - 1), cursor + 1);
+            case GLFW.GLFW_KEY_UP -> {
+                cursor--;
+                clampScroll();
+            }
+            case GLFW.GLFW_KEY_DOWN -> {
+                cursor++;
+                clampScroll();
+            }
             case GLFW.GLFW_KEY_ENTER, GLFW.GLFW_KEY_KP_ENTER, GLFW.GLFW_KEY_SPACE -> toggleCursor();
             case GLFW.GLFW_KEY_LEFT -> F3Config.previousPreset();
             case GLFW.GLFW_KEY_RIGHT -> F3Config.nextPreset();
@@ -115,10 +159,13 @@ public final class ChooserScreen extends Screen {
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
         if (button == 0) {
-            for (int i = 0; i < keys.size(); i++) {
-                int y = TOP + i * ROW_HEIGHT;
-                if (mouseX >= LEFT && mouseX < width - LEFT && mouseY >= y && mouseY < y + ROW_HEIGHT) {
-                    cursor = i;
+            int rows = visibleRows();
+            int rowBottom = TOP + rows * ROW_HEIGHT;
+            if (mouseX >= LEFT && mouseX < width - LEFT && mouseY >= TOP && mouseY < rowBottom) {
+                int index = firstVisible + (int) ((mouseY - TOP) / ROW_HEIGHT);
+                if (index >= 0 && index < keys.size()) {
+                    cursor = index;
+                    clampScroll();
                     toggleCursor();
                     return true;
                 }

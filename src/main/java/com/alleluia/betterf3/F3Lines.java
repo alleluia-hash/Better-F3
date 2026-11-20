@@ -1,7 +1,5 @@
 package com.alleluia.betterf3;
 
-import net.minecraft.client.MinecraftClient;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,7 +19,7 @@ public final class F3Lines {
         hud = access;
     }
 
-    public static List<Line> snapshot(MinecraftClient client) {
+    public static List<Line> snapshot() {
         List<Line> out = new ArrayList<>();
         BetterF3DebugAccess access = hud;
         if (access == null) {

@@ -56,7 +56,7 @@ public final class F3Overlay {
 
         Set<String> active = F3Config.activeKeys();
         int y = TOP + LINE_HEIGHT;
-        for (F3Lines.Line line : F3Lines.snapshot(client)) {
+        for (F3Lines.Line line : F3Lines.snapshot()) {
             if (active.contains(line.key())) {
                 context.drawText(client.textRenderer, line.text(), LEFT, y, TEXT_COLOR, true);
                 y += LINE_HEIGHT;
